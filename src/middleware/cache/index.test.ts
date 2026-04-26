@@ -500,3 +500,71 @@ describe('Cache Skipping Logic', () => {
     expect(putSpy).toHaveBeenCalled()
   })
 })
+
+describe('Cache Middleware - onCacheNotAvailable', () => {
+  it('Should call onCacheNotAvailable callback when caches is not defined', async () => {
+    vi.stubGlobal('caches', undefined)
+    const onCacheNotAvailable = vi.fn()
+    const app = new Hono()
+    app.use(
+      cache({
+        cacheName: 'my-app-v1',
+        onCacheNotAvailable,
+      })
+    )
+    app.get('/', (c) => {
+      return c.text('cached')
+    })
+
+    expect(caches).toBeUndefined()
+    const res = await app.request('/')
+    expect(res).not.toBeNull()
+    expect(res.status).toBe(200)
+    expect(onCacheNotAvailable).toHaveBeenCalledTimes(1)
+  })
+
+  it('Should not log when onCacheNotAvailable is set to false', async () => {
+    vi.stubGlobal('caches', undefined)
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const app = new Hono()
+    app.use(
+      cache({
+        cacheName: 'my-app-v1',
+        onCacheNotAvailable: false,
+      })
+    )
+    app.get('/', (c) => {
+      return c.text('cached')
+    })
+
+    expect(caches).toBeUndefined()
+    const res = await app.request('/')
+    expect(res).not.toBeNull()
+    expect(res.status).toBe(200)
+    expect(consoleSpy).not.toHaveBeenCalled()
+    consoleSpy.mockRestore()
+  })
+
+  it('Should log default message when onCacheNotAvailable is not provided', async () => {
+    vi.stubGlobal('caches', undefined)
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const app = new Hono()
+    app.use(
+      cache({
+        cacheName: 'my-app-v1',
+      })
+    )
+    app.get('/', (c) => {
+      return c.text('cached')
+    })
+
+    expect(caches).toBeUndefined()
+    const res = await app.request('/')
+    expect(res).not.toBeNull()
+    expect(res.status).toBe(200)
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Cache Middleware is not enabled because caches is not defined.'
+    )
+    consoleSpy.mockRestore()
+  })
+})
