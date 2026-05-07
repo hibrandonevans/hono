@@ -416,6 +416,28 @@ describe('Cache Middleware', () => {
     expect(res.status).toBe(200)
     expect(res.headers.get('cache-control')).toBe(null)
   })
+
+  it('Should not log when onCacheNotAvailable is false', async () => {
+    vi.stubGlobal('caches', undefined)
+    const consoleSpy = vi.spyOn(console, 'log')
+    const app = new Hono()
+    app.use(cache({ cacheName: 'my-app-v1', onCacheNotAvailable: false }))
+    app.get('/', (c) => c.text('cached'))
+    await app.request('/')
+    expect(consoleSpy).not.toHaveBeenCalled()
+  })
+
+  it('Should call onCacheNotAvailable when provided as a function', async () => {
+    vi.stubGlobal('caches', undefined)
+    const consoleSpy = vi.spyOn(console, 'log')
+    const customHandler = vi.fn()
+    const app = new Hono()
+    app.use(cache({ cacheName: 'my-app-v1', onCacheNotAvailable: customHandler }))
+    app.get('/', (c) => c.text('cached'))
+    await app.request('/')
+    expect(customHandler).toHaveBeenCalledOnce()
+    expect(consoleSpy).not.toHaveBeenCalled()
+  })
 })
 
 describe('Cache Skipping Logic', () => {
