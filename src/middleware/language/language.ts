@@ -235,6 +235,10 @@ function cacheLanguage(c: Context, language: string, options: DetectorOptions): 
   }
 }
 
+const resolveFallbackLanguage = async (options: DetectorOptions): Promise<string> => {
+  return await Promise.resolve(options.fallbackLanguage)
+}
+
 /**
  * Detect language from request
  */
@@ -297,7 +301,7 @@ export const languageDetector = (userOptions: Partial<DetectorOptions>): Middlew
       if (options.debug) {
         console.error('Language detection failed:', error)
       }
-      ctx.set('language', options.fallbackLanguage)
+      ctx.set('language', await resolveFallbackLanguage(options))
     }
 
     await next()
