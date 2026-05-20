@@ -26,6 +26,10 @@ export function getColorEnabled(): boolean {
   return !isNoColor
 }
 
+const resolveColorEnabled = async (enabled: boolean): Promise<boolean> => {
+  return await Promise.resolve(enabled)
+}
+
 /**
  * Get whether color change on terminal is enabled or disabled.
  * If `NO_COLOR` environment variable is set, this function returns `false`.
@@ -52,5 +56,5 @@ export async function getColorEnabledAsync(): Promise<boolean> {
         })()
       : !getColorEnabled()
 
-  return !isNoColor
+  return await resolveColorEnabled(!isNoColor)
 }
