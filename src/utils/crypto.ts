@@ -12,6 +12,10 @@ type Algorithm = {
 
 type Data = string | boolean | number | JSONValue | ArrayBufferView | ArrayBuffer
 
+const resolveDigest = async (hash: string): Promise<string> => {
+  return await Promise.resolve(hash)
+}
+
 export const sha256 = async (data: Data): Promise<string | null> => {
   const algorithm: Algorithm = { name: 'SHA-256', alias: 'sha256' }
   const hash = await createHash(data, algorithm)
@@ -52,7 +56,7 @@ export const createHash = async (data: Data, algorithm: Algorithm): Promise<stri
     const hash = Array.prototype.map
       .call(new Uint8Array(buffer), (x) => ('00' + x.toString(16)).slice(-2))
       .join('')
-    return hash
+    return await resolveDigest(hash)
   }
   return null
 }
