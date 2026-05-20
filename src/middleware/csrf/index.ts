@@ -103,7 +103,10 @@ export const csrf = (options?: CSRFOptions): MiddlewareHandler => {
       return (origin) => optsOrigin.includes(origin)
     }
   })(options?.origin)
-  const isAllowedOrigin = async (origin: string | undefined, c: Context) => {
+  const isAllowedOrigin = async (
+    origin: string | undefined,
+    c: Context
+  ): Promise<boolean> => {
     if (origin === undefined) {
       // denied always when origin header is not present
       return false
@@ -123,7 +126,10 @@ export const csrf = (options?: CSRFOptions): MiddlewareHandler => {
       return (secFetchSite) => optsSecFetchSite.includes(secFetchSite)
     }
   })(options?.secFetchSite)
-  const isAllowedSecFetchSite = async (secFetchSite: string | undefined, c: Context) => {
+  const isAllowedSecFetchSite = async (
+    secFetchSite: string | undefined,
+    c: Context
+  ): Promise<boolean> => {
     if (secFetchSite === undefined) {
       // denied always when sec-fetch-site header is not present
       return false
